@@ -1,5 +1,0 @@
----
-- name: Install basic packages
-  yum:
-    name: [ "git", "vim", "curl" ]
-    state: present

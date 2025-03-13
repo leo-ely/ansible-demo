@@ -1,3 +1,0 @@
----
-- name: Configure EC2 instances
-  import_tasks: ec2_instances.yml
