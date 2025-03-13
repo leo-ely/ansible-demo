@@ -26,7 +26,13 @@ jobs:
           project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: GCP SDK Setup
-        run: sudo apt update && sudo apt install -y google-cloud-sdk
+        run: sudo apt update && sudo apt install -y google-cloud-cli
+
+      - name: Fetch SSH key file from Cloud Storage Bucket
+        run: gsutil cp gs://actions-bucket-terraform-files/civm_key.pem civm_key.pem
+      - name: Set SSH key permission
+        run: chmod 600 civm_key.pem
+
       - name: Fetch Compute Instance VM Instances inventory file from Cloud Storage Bucket
         run: gsutil cp gs://actions-bucket-terraform-files/compute-instance-inventory.json compute-instance-inventory.json
       - name: Parse JSON file
@@ -35,6 +41,10 @@ jobs:
             echo "        gcp-vm-$ip:" >> inventories/gcp.yml
             echo "          ansible_host: $ip" >> inventories/gcp.yml
           done
+      - name: Append SSH configuration to inventory
+        run: |
+          echo "          ansible_user: ubuntu" >> inventories/gcp.yml
+          echo "          ansible_ssh_private_key_file: ../civm_key.pem" >> inventories/gcp.yml
 
       - name: Ansible Setup
         run: |
