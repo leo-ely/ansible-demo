@@ -1,6 +1,6 @@
 ---
 - name: Install basic packages
-  ansible.builtin.yum:
+  ansible.builtin.package:
     name:
       - "git"
       - "vim"
