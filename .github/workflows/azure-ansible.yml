@@ -36,7 +36,7 @@ jobs:
         uses: azure/cli@v2
         with:
           inlineScript: |
-            az storage blob download -c terraform-files -n vm_key.pem -f vm_key.pem
+            az storage blob download -c terraform-files -n vm_key.pem -f ./vm_key.pem
       - name: Set SSH key permission
         run: chmod 600 vm_key.pem
 

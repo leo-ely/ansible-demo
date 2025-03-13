@@ -24,9 +24,10 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           project_id: ${{ vars.GCP_PROJECT_ID }}
-
-      - name: GCP SDK Setup
-        run: sudo apt update && sudo apt install -y google-cloud-cli
+      - name: GCP Cloud SDK Setup
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: Fetch SSH key file from Cloud Storage Bucket
         run: gsutil cp gs://actions-bucket-terraform-files/civm_key.pem civm_key.pem
