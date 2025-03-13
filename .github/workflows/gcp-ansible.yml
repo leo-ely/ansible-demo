@@ -32,7 +32,7 @@ jobs:
       - name: Fetch SSH key file from Cloud Storage Bucket
         run: gsutil cp gs://actions-bucket-terraform-files/civm_key.pem civm_key.pem
       - name: Set SSH key permission
-        run: chmod 600 civm_key.pem
+        run: chmod 400 civm_key.pem
 
       - name: Fetch Compute Instance VM Instances inventory file from Cloud Storage Bucket
         run: gsutil cp gs://actions-bucket-terraform-files/compute-instance-inventory.json compute-instance-inventory.json

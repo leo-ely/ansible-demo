@@ -36,9 +36,9 @@ jobs:
         uses: azure/cli@v2
         with:
           inlineScript: |
-            az storage blob download -c terraform-files -n vm_key.pem -f ./vm_key.pem
+            az storage blob download -c terraform-files -n vm_key.pem -f ${{ github.workspace }}/vm_key.pem
       - name: Set SSH key permission
-        run: chmod 600 vm_key.pem
+        run: chmod 400 ${{ github.workspace }}/vm_key.pem
 
       - name: Fetch Virtual Machines inventory file from Storage Blob
         uses: azure/cli@v2
@@ -54,7 +54,7 @@ jobs:
       - name: Append SSH configuration to inventory
         run: |
           echo "          ansible_user: test-user" >> inventories/azure.yml
-          echo "          ansible_ssh_private_key_file: ../vm_key.pem" >> inventories/azure.yml
+          echo "          ansible_ssh_private_key_file: ${{ github.workspace }}/vm_key.pem" >> inventories/azure.yml
 
       - name: Ansible Setup
         run: |

@@ -28,7 +28,7 @@ jobs:
       - name: Fetch SSH key file from S3 Bucket
         run: aws s3 cp s3://aws-actions-terraform-files/ec2_key.pem ec2_key.pem
       - name: Set SSH key permission
-        run: chmod 600 ec2_key.pem
+        run: chmod 400 ec2_key.pem
 
       - name: Fetch EC2 Instances inventory file from S3 Bucket
         run: aws s3 cp s3://aws-actions-terraform-files/ec2-inventory.json ec2-inventory.json
