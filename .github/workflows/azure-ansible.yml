@@ -25,16 +25,36 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Azure CLI Setup
-        run: sudo apt install -y azure-cli
+      - name: Fetch connection string from Azure
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            connection=$(az storage account show-connection-string -n actionsterraformstorage -g terraform-resource-group --output tsv)
+            echo "AZURE_STORAGE_CONNECTION_STRING=$(echo $connection)" >> $GITHUB_ENV
+
+      - name: Fetch SSH key file from Storage Blob
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az storage blob download -c terraform-files -n vm_key.pem -f vm_key.pem
+      - name: Set SSH key permission
+        run: chmod 600 vm_key.pem
+
       - name: Fetch Virtual Machines inventory file from Storage Blob
-        run: az storage blob download -c terraform-files -n azure-vm-inventory.json -f azure-vm-inventory.json
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az storage blob download -c terraform-files -n azure-vm-inventory.json -f azure-vm-inventory.json
       - name: Parse JSON file
         run: |
           jq -r '.vm_instances[]' azure-vm-inventory.json | while read ip; do
             echo "        azure-vm-$ip:" >> inventories/azure.yml
             echo "          ansible_host: $ip" >> inventories/azure.yml
           done
+      - name: Append SSH configuration to inventory
+        run: |
+          echo "          ansible_user: test-user" >> inventories/azure.yml
+          echo "          ansible_ssh_private_key_file: ../vm_key.pem" >> inventories/azure.yml
 
       - name: Ansible Setup
         run: |
