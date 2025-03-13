@@ -1,0 +1,5 @@
+---
+all:
+  children:
+    virtual_machines:
+      hosts:

@@ -1,0 +1,45 @@
+name: "Ansible GCP deployment"
+
+on:
+  workflow_call:
+
+env:
+  GCP_LOCATION: ${{ vars.GCP_LOCATION }}
+  GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+
+jobs:
+  playbook-deploy:
+    name: "Ansible Playbook Deploy"
+    runs-on: ubuntu-latest
+    environment: gcp-production
+    concurrency: gcp-production
+    defaults:
+      run:
+        working-directory: ./.ansible/
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: GCP Authentication
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+
+      - name: GCP SDK Setup
+        run: sudo apt update && sudo apt install -y google-cloud-sdk
+      - name: Fetch Compute Instance VM Instances inventory file from Cloud Storage Bucket
+        run: gsutil cp gs://actions-bucket-terraform-files/compute-instance-inventory.json compute-instance-inventory.json
+      - name: Parse JSON file
+        run: |
+          jq -r '.compute_instances[]' compute-instance-inventory.json | while read ip; do
+            echo "        gcp-vm-$ip:" >> inventories/gcp.yml
+            echo "          ansible_host: $ip" >> inventories/gcp.yml
+          done
+
+      - name: Ansible Setup
+        run: |
+          sudo apt update && sudo apt install -y ansible python3-pip
+          pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client ansible[gcp]
+
+      - name: Apply Ansible Playbook
+        run: ansible-playbook -i ./inventories/gcp.yml ./playbooks/gcp.yml

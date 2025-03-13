@@ -1,0 +1,3 @@
+---
+- name: Configure Virtual Machines
+  import_tasks: virtual_machines.yml

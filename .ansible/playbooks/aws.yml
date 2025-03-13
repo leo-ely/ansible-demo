@@ -1,0 +1,5 @@
+---
+- name: Configure AWS resources
+  hosts: all
+  roles:
+    - aws

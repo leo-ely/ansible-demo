@@ -1,0 +1,45 @@
+name: "Ansible AWS deployment"
+
+on:
+  workflow_call:
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+
+jobs:
+  playbook-deploy:
+    name: "Ansible Playbook Deploy"
+    runs-on: ubuntu-latest
+    environment: aws-production
+    concurrency: aws-production
+    defaults:
+      run:
+        working-directory: ./.ansible/
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Fetch EC2 Instances inventory file from S3 Bucket
+        run: aws s3 cp s3://aws-actions-terraform-files/ec2-inventory.json ec2-inventory.json
+      - name: Parse JSON file
+        run: |
+          jq -r '.ec2_instances[]' ec2-inventory.json | while read ip; do
+            echo "        ec2-$ip:" >> inventories/aws.yml
+            echo "          ansible_host: $ip" >> inventories/aws.yml
+          done
+
+      - name: Ansible Setup
+        run: |
+          sudo apt update && sudo apt install -y ansible python3-pip
+          pip install boto3 botocore
+      - name: Install Ansible Collections
+        run: ansible-galaxy collection install amazon.aws
+
+      - name: Apply Ansible Playbook
+        run: ansible-playbook -i ./inventories/aws.yml ./playbooks/aws.yml
