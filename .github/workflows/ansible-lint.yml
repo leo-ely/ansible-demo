@@ -7,4 +7,4 @@ jobs:
     name: "Lint files"
     uses: ansible/ansible-content-actions/.github/workflows/ansible_lint.yaml@main
     with:
-      args: '-p inventories playbooks roles'  # Directory
+      args: '-p .ansible/inventories .ansible/playbooks .ansible/roles'  # Directory
