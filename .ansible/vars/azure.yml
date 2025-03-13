@@ -1,0 +1,3 @@
+---
+location: "{{ lookup('env', 'AZURE_LOCATION') }}"
+subscription_id: "{{ lookup('env', 'AZURE_SUBSCRIPTION_ID') }}"

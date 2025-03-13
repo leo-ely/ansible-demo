@@ -1,0 +1,45 @@
+name: "Ansible Azure deployment"
+
+on:
+  workflow_call:
+
+env:
+  LOCATION: ${{ vars.AZURE_LOCATION }}
+
+jobs:
+  playbook-deploy:
+    name: "Ansible Playbook Deploy"
+    runs-on: ubuntu-latest
+    environment: azure-production
+    concurrency: azure-production
+    defaults:
+      run:
+        working-directory: ./.ansible/
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Azure Authentication
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Azure CLI Setup
+        run: sudo apt install -y azure-cli
+      - name: Fetch Virtual Machines inventory file from Storage Blob
+        run: az storage blob download -c terraform-files -n azure-vm-inventory.json -f azure-vm-inventory.json
+      - name: Parse JSON file
+        run: |
+          jq -r '.vm_instances[]' azure-vm-inventory.json | while read ip; do
+            echo "        azure-vm-$ip:" >> inventories/azure.yml
+            echo "          ansible_host: $ip" >> inventories/azure.yml
+          done
+
+      - name: Ansible Setup
+        run: |
+          sudo apt update && sudo apt install -y ansible python3-pip
+          pip install azure-mgmt-compute azure-mgmt-network azure-mgmt-resource ansible[azure]
+
+      - name: Apply Ansible Playbook
+        run: ansible-playbook -i ./inventories/azure.yml ./playbooks/azure.yml

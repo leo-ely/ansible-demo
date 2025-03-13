@@ -1,0 +1,5 @@
+---
+all:
+  children:
+    ec2_instances:
+      hosts:

@@ -1,0 +1,5 @@
+---
+- name: Configure GCP resources
+  hosts: all
+  roles:
+    - gcp

@@ -1,0 +1,5 @@
+---
+all:
+  children:
+    compute_instances:
+      hosts:

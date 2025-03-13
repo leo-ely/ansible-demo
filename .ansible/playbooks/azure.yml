@@ -1,0 +1,5 @@
+---
+- name: Configure Azure resources
+  hosts: all
+  roles:
+    - azure

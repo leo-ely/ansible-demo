@@ -1,0 +1,3 @@
+---
+location: "{{ lookup('env', 'GCP_LOCATION') }}"
+project_id: "{{ lookup('env', 'GCP_PROJECT_ID') }}"
