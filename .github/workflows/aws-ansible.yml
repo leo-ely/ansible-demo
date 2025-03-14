@@ -4,6 +4,7 @@ on:
   workflow_call:
 
 env:
+  ANSIBLE_HOST_KEY_CHECKING: False
   AWS_REGION: ${{ vars.AWS_REGION }}
 
 jobs:

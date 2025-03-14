@@ -4,6 +4,7 @@ on:
   workflow_call:
 
 env:
+  ANSIBLE_HOST_KEY_CHECKING: False
   LOCATION: ${{ vars.AZURE_LOCATION }}
 
 jobs:

@@ -4,6 +4,7 @@ on:
   workflow_call:
 
 env:
+  ANSIBLE_HOST_KEY_CHECKING: False
   GCP_LOCATION: ${{ vars.GCP_LOCATION }}
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
 
