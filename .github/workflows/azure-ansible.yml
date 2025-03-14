@@ -48,6 +48,11 @@ jobs:
         with:
           inlineScript: |
             az storage blob download -c terraform-files -n azure-vm-inventory.json -f azure-vm-inventory.json
+      - name: Set inventory file permission
+        run: |
+          sudo mv ${{ github.workspace }}/azure-vm-inventory.json ./azure-vm-inventory.json
+          sudo chown runner:docker ./azure-vm-inventory.json
+          chmod 755 ./azure-vm-inventory.json
       - name: Parse JSON file
         run: |
           jq -r '.vm_instances[]' azure-vm-inventory.json | while read ip; do
