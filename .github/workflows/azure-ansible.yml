@@ -37,13 +37,11 @@ jobs:
         with:
           inlineScript: |
             az storage blob download -c terraform-files -n vm_key.pem -f ${{ github.workspace }}/vm_key.pem
-      - name: Echo dirs
-        run: |
-          ls -al ./
-          ls -al ../
-          ls -al ../../
       - name: Set SSH key permission
-        run: chmod 400 ${{ github.workspace }}/vm_key.pem
+        run: |
+          sudo mv ${{ github.workspace }}/vm_key.pem ./vm_key.pem
+          sudo chown runner:docker ./vm_key.pem
+          chmod 400 ${{ github.workspace }}/vm_key.pem
 
       - name: Fetch Virtual Machines inventory file from Storage Blob
         uses: azure/cli@v2
