@@ -41,7 +41,7 @@ jobs:
         run: |
           sudo mv ${{ github.workspace }}/vm_key.pem ./vm_key.pem
           sudo chown runner:docker ./vm_key.pem
-          chmod 400 ${{ github.workspace }}/vm_key.pem
+          chmod 400 ./vm_key.pem
 
       - name: Fetch Virtual Machines inventory file from Storage Blob
         uses: azure/cli@v2
