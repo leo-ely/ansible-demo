@@ -1,0 +1,4 @@
+---
+# Added exclusion for package updates
+skip_list:
+  - "403"
