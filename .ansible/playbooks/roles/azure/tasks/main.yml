@@ -1,3 +1,4 @@
 ---
 - name: Configure Virtual Machines
   ansible.builtin.import_tasks: virtual_machines.yml
+  become: true
