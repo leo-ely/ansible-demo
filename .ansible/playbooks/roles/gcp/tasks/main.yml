@@ -1,3 +1,4 @@
 ---
 - name: Configure Compute Instances
   ansible.builtin.import_tasks: compute_instances.yml
+  become: true
