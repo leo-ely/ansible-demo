@@ -24,4 +24,5 @@ jobs:
     uses: ./.github/workflows/gcp-ansible.yml
     permissions:
       contents: read
+      id-token: write
     secrets: inherit

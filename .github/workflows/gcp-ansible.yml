@@ -4,6 +4,7 @@ on:
   workflow_call:
 
 env:
+  ANSIBLE_HOST_KEY_CHECKING: False
   GCP_LOCATION: ${{ vars.GCP_LOCATION }}
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
 
@@ -24,14 +25,15 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           project_id: ${{ vars.GCP_PROJECT_ID }}
-
-      - name: GCP SDK Setup
-        run: sudo apt update && sudo apt install -y google-cloud-cli
+      - name: GCP Cloud SDK Setup
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: Fetch SSH key file from Cloud Storage Bucket
         run: gsutil cp gs://actions-bucket-terraform-files/civm_key.pem civm_key.pem
       - name: Set SSH key permission
-        run: chmod 600 civm_key.pem
+        run: chmod 400 civm_key.pem
 
       - name: Fetch Compute Instance VM Instances inventory file from Cloud Storage Bucket
         run: gsutil cp gs://actions-bucket-terraform-files/compute-instance-inventory.json compute-instance-inventory.json
@@ -44,11 +46,11 @@ jobs:
       - name: Append SSH configuration to inventory
         run: |
           echo "          ansible_user: ubuntu" >> inventories/gcp.yml
-          echo "          ansible_ssh_private_key_file: ../civm_key.pem" >> inventories/gcp.yml
+          echo "          ansible_ssh_private_key_file: ${{ github.workspace }}/.ansible/civm_key.pem" >> inventories/gcp.yml
 
       - name: Ansible Setup
         run: |
-          sudo apt update && sudo apt install -y ansible python3-pip
+          sudo apt update && sudo apt install -y python3 ansible python3-pip
           pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client ansible[gcp]
 
       - name: Apply Ansible Playbook

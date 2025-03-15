@@ -4,6 +4,7 @@ on:
   workflow_call:
 
 env:
+  ANSIBLE_HOST_KEY_CHECKING: False
   LOCATION: ${{ vars.AZURE_LOCATION }}
 
 jobs:
@@ -36,15 +37,23 @@ jobs:
         uses: azure/cli@v2
         with:
           inlineScript: |
-            az storage blob download -c terraform-files -n vm_key.pem -f vm_key.pem
+            az storage blob download -c terraform-files -n vm_key.pem -f ${{ github.workspace }}/vm_key.pem
       - name: Set SSH key permission
-        run: chmod 600 vm_key.pem
+        run: |
+          sudo mv ${{ github.workspace }}/vm_key.pem ./vm_key.pem
+          sudo chown runner:docker ./vm_key.pem
+          chmod 400 ./vm_key.pem
 
       - name: Fetch Virtual Machines inventory file from Storage Blob
         uses: azure/cli@v2
         with:
           inlineScript: |
             az storage blob download -c terraform-files -n azure-vm-inventory.json -f azure-vm-inventory.json
+      - name: Set inventory file permission
+        run: |
+          sudo mv ${{ github.workspace }}/azure-vm-inventory.json ./azure-vm-inventory.json
+          sudo chown runner:docker ./azure-vm-inventory.json
+          chmod 755 ./azure-vm-inventory.json
       - name: Parse JSON file
         run: |
           jq -r '.vm_instances[]' azure-vm-inventory.json | while read ip; do
@@ -54,11 +63,11 @@ jobs:
       - name: Append SSH configuration to inventory
         run: |
           echo "          ansible_user: test-user" >> inventories/azure.yml
-          echo "          ansible_ssh_private_key_file: ../vm_key.pem" >> inventories/azure.yml
+          echo "          ansible_ssh_private_key_file: ${{ github.workspace }}/.ansible/vm_key.pem" >> inventories/azure.yml
 
       - name: Ansible Setup
         run: |
-          sudo apt update && sudo apt install -y ansible python3-pip
+          sudo apt update && sudo apt install -y python3 ansible python3-pip
           pip install azure-mgmt-compute azure-mgmt-network azure-mgmt-resource ansible[azure]
 
       - name: Apply Ansible Playbook
