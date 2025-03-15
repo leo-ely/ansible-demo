@@ -1,9 +1,15 @@
 name: "Ansible Deployment"
 
 on:
-  workflow_dispatch:
   repository_dispatch:
-    types: [ terraform-deployed ]
+    types: [ terraform_deployed ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment
+        type: choice
+        options:
+          - production
 
 jobs:
   aws-ansible:

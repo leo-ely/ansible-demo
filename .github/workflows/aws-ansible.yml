@@ -2,6 +2,9 @@ name: "Ansible AWS deployment"
 
 on:
   workflow_call:
+    inputs:
+      environment:
+        type: string
 
 env:
   ANSIBLE_HOST_KEY_CHECKING: False
@@ -11,8 +14,8 @@ jobs:
   playbook-deploy:
     name: "Ansible Playbook Deploy"
     runs-on: ubuntu-latest
-    environment: aws-production
-    concurrency: aws-production
+    environment: aws-${{ inputs.environment }}
+    concurrency: aws-${{ inputs.environment }}
     defaults:
       run:
         working-directory: ./.ansible/
