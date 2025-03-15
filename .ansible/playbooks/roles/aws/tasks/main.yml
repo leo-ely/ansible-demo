@@ -1,3 +1,4 @@
 ---
 - name: Configure EC2 instances
   ansible.builtin.import_tasks: ec2_instances.yml
+  become: true
