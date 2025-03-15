@@ -1,9 +1,15 @@
 name: "Ansible Deployment"
 
 on:
-  workflow_dispatch:
   repository_dispatch:
-    types: [ terraform-deployed ]
+    types: [ terraform_deployed ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment
+        type: choice
+        options:
+          - production
 
 jobs:
   aws-ansible:
@@ -12,6 +18,8 @@ jobs:
     permissions:
       contents: read
     secrets: inherit
+    with:
+      environment: ${{ github.event == 'repository_dispatch' && github.event.client_payload.environment || inputs.environment }}
   azure-ansible:
     name: "Azure Deployment"
     uses: ./.github/workflows/azure-ansible.yml
@@ -19,6 +27,8 @@ jobs:
       contents: read
       id-token: write
     secrets: inherit
+    with:
+      environment: ${{ github.event == 'repository_dispatch' && github.event.client_payload.environment || inputs.environment }}
   gcp-ansible:
     name: "GCP Deployment"
     uses: ./.github/workflows/gcp-ansible.yml
@@ -26,3 +36,5 @@ jobs:
       contents: read
       id-token: write
     secrets: inherit
+    with:
+      environment: ${{ github.event == 'repository_dispatch' && github.event.client_payload.environment || inputs.environment }}

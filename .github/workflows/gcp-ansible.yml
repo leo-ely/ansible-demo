@@ -2,6 +2,9 @@ name: "Ansible GCP deployment"
 
 on:
   workflow_call:
+    inputs:
+      environment:
+        type: string
 
 env:
   ANSIBLE_HOST_KEY_CHECKING: False
@@ -12,8 +15,8 @@ jobs:
   playbook-deploy:
     name: "Ansible Playbook Deploy"
     runs-on: ubuntu-latest
-    environment: gcp-production
-    concurrency: gcp-production
+    environment: gcp-${{ inputs.environment }}
+    concurrency: gcp-${{ inputs.environment }}
     defaults:
       run:
         working-directory: ./.ansible/
