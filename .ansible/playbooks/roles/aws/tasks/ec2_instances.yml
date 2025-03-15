@@ -2,7 +2,7 @@
 - name: Ensure package updates
   ansible.builtin.package:
     name: "*"
-    state: latest
+    state: latest # noqa package-latest
 
 - name: Install basic packages
   ansible.builtin.package:
