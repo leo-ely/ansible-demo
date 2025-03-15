@@ -46,8 +46,7 @@ jobs:
 
       - name: Ansible Setup
         run: |
-          sudo apt update && sudo apt upgrade -y
-          sudo apt install -y python3 ansible python3-pip
+          sudo apt update && install -y python3 ansible python3-pip
           pip install boto3 botocore
       - name: Install Ansible Collections
         run: ansible-galaxy collection install amazon.aws

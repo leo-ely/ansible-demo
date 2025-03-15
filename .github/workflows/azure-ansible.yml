@@ -67,7 +67,7 @@ jobs:
 
       - name: Ansible Setup
         run: |
-          sudo apt update && sudo apt install -y ansible python3-pip
+          sudo apt update && sudo apt install -y python3 ansible python3-pip
           pip install azure-mgmt-compute azure-mgmt-network azure-mgmt-resource ansible[azure]
 
       - name: Apply Ansible Playbook
